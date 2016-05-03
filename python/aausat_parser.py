@@ -62,12 +62,12 @@ class aausat_parser(gr.sync_block):
 
         data = None
         try:
-            print "Trying to decode as long packet: 250 FEC bytes, 86 payload bytes"
+            print "Trying to decode as long packet: 250 FEC bytes, 92 data bytes"
             (data, bit_corr, byte_corr) = self.ec.decode(pack(packet[8:]))
         except Exception as ex:
             print(ex)
             try:
-                print "Trying to decode as short packet: 128 FEC bytes, 25 payload bytes"
+                print "Trying to decode as short packet: 128 FEC bytes, 31 data bytes"
                 (data, bit_corr, byte_corr) = self.ec.decode(pack(packet[8:8 + 128*8]))
             except Exception as ex:
                 print(ex)
