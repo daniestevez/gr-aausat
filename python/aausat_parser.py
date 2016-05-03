@@ -95,10 +95,10 @@ class aausat_parser(gr.sync_block):
         # tags for packets already in inp
         tags = self.get_tags_in_window(0, 0, max(len(inp) - MAXLEN + 1, 0))
         for tag in tags:
-            print "-----tag----"
-            print(tag.key)
-            print(tag.offset)
-            print "------------"
+            #print "-----tag----"
+            #print(tag.key)
+            #print(tag.offset)
+            #print "------------"
             start = tag.offset - self.nitems_read(0)
             self.process_packet(inp[start:start + MAXLEN].tolist())
         
@@ -108,10 +108,10 @@ class aausat_parser(gr.sync_block):
         ##print "len(inp) = ", len(inp)
         tags = self.get_tags_in_range(0, self.nitems_read(0) - len(self.stream), max(self.nitems_read(0) + min(len(inp) - MAXLEN + 1, 0),0))
         for tag in tags:
-            print "--tag--"
-            print(tag.key)
-            print(tag.offset)
-            print "-----"
+            #print "--tag--"
+            #print(tag.key)
+            #print(tag.offset)
+            #print "-----"
             start = tag.offset - self.nitems_read(0) + len(self.stream)
             end = tag.offset - self.nitems_read(0) + MAXLEN
             l = list(self.stream)[start:] + inp[:end].tolist()
