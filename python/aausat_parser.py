@@ -29,7 +29,7 @@ import binascii
 
 import fec
 import beacon
-import csp
+from csp.csp_header import CSP
 
 MAXLEN = 2008
 
@@ -80,7 +80,7 @@ class aausat_parser(gr.sync_block):
             print "bit_corr = ", bit_corr
             print "byte_corr = ", byte_corr
             print "----------------------------------"
-            print(str(csp.CSP(data)))
+            print(str(CSP(data)))
             try:
                 print(str(beacon.Beacon(hexdata[8:-4]))) # -4 strips out HMAC
             except Exception:

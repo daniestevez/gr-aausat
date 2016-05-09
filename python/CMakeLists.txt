@@ -31,7 +31,6 @@ endif()
 GR_PYTHON_INSTALL(
     FILES
     __init__.py
-    csp.py
     beacon.py
     fec.py
     aausat_parser.py DESTINATION ${GR_PYTHON_DIR}/aausat
