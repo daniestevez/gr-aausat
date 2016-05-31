@@ -21,12 +21,12 @@ class EPS(object):
         self.ping_status = int(eps_data[20:22], 16) # uint8_t (?)
         self.subsystem_selfstatus = int(eps_data[22:26], 16) # uint16_t
         self.battery_voltage = int(eps_data[26:28], 16) * 40 # uint8_t - 40 magic number from MCC client
-        self.cell_diff = int(eps_data[28:30], 16) * 4 # int8_t
-        self.battery_current = int(eps_data[30:32], 16) * 10# int8_t
+        self.cell_diff = struct.unpack('>b', eps_data[28:30].decode('hex'))[0] * 4 # int8_t
+        self.battery_current = struct.unpack('>b', eps_data[30:32].decode('hex'))[0] * 10# int8_t
         self.solar_power = int(eps_data[32:34], 16) * 20 # uint8_t
-        self.temp = int(eps_data[34:36], 16) #int8_t
-        self.pa_temp = int(eps_data[36:38], 16) #int8_t
-        self.main_voltage = int(eps_data[38:40], 16) #int8_t
+        self.temp = struct.unpack('>b', eps_data[34:36].decode('hex'))[0] #int8_t
+        self.pa_temp = struct.unpack('>b', eps_data[36:38].decode('hex'))[0] #int8_t
+        self.main_voltage = struct.unpack('>b', eps_data[38:40].decode('hex'))[0] #int8_t
 
     def __str__(self):
         eps_str = ("""EPS:
