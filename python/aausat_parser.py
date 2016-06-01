@@ -82,7 +82,7 @@ class aausat_parser(gr.sync_block):
             print "----------------------------------"
             print(str(CSP(data)))
             try:
-                print(str(beacon.Beacon(hexdata[8:-4]))) # -4 strips out HMAC
+                print(str(beacon.Beacon(data[4:-2]))) # -2 strips out HMAC
             except Exception:
                 print "Error decoding beacon"
 

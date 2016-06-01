@@ -12,21 +12,17 @@ class InputException(Exception):
         
 class EPS(object):
     def __init__(self, eps_data):
-        if len(eps_data) != EPS_LENGTH*2:
+        if len(eps_data) != EPS_LENGTH:
             raise InputException(len(eps_data), EPS_LENGTH)
-        
-        self.boot_count = int(eps_data[0:4], 16) # uint16_t
-        self.uptime = int(eps_data[4:12], 16) # uint32_t
-        self.rt_clock = int(eps_data[12:20], 16) # uint32_t
-        self.ping_status = int(eps_data[20:22], 16) # uint8_t (?)
-        self.subsystem_selfstatus = int(eps_data[22:26], 16) # uint16_t
-        self.battery_voltage = int(eps_data[26:28], 16) * 40 # uint8_t - 40 magic number from MCC client
-        self.cell_diff = struct.unpack('>b', eps_data[28:30].decode('hex'))[0] * 4 # int8_t
-        self.battery_current = struct.unpack('>b', eps_data[30:32].decode('hex'))[0] * 10# int8_t
-        self.solar_power = int(eps_data[32:34], 16) * 20 # uint8_t
-        self.temp = struct.unpack('>b', eps_data[34:36].decode('hex'))[0] #int8_t
-        self.pa_temp = struct.unpack('>b', eps_data[36:38].decode('hex'))[0] #int8_t
-        self.main_voltage = struct.unpack('>b', eps_data[38:40].decode('hex'))[0] #int8_t
+
+        self.boot_count, self.uptime, self.rt_clock, self.ping_status, self.subsystem_status,\
+        self.battery_voltage, self.cell_diff, self.battery_current, self.solar_power,\
+        self.temp, self.pa_temp, self.main_voltage = struct.unpack(">HIIBHBbbBbbb", eps_data)
+
+        self.battery_voltage *= 40
+        self.cell_diff *= 4
+        self.battery_current *= 10
+        self.solar_power *= 20
 
     def __str__(self):
         eps_str = ("""EPS:
@@ -48,12 +44,11 @@ class EPS(object):
 
 class COM(object):
     def __init__(self, com_data):
-        self.boot_count = int(com_data[0:4], 16) & 0x1FFF # uint16_t
-        self.packets_received = int(com_data[4:8], 16) # uint16_t
-        self.packets_send = int(com_data[8:12], 16) # uint16_t
-        self.latest_rssi = struct.unpack('>h', com_data[12:16].decode('hex'))[0] # int16_t
-        self.latest_bit_correction = int(com_data[16:18], 16) # uint8_t
-        self.latest_byte_correction = int(com_data[18:20], 16) # uint8_t
+        self.boot_count, self.packets_received, self.packets_send, self.latest_rssi,\
+        self.latest_bit_correction, self.latest_byte_correction = \
+                          struct.unpack(">HHHhBB", com_data)
+
+        self.boot_count &= 0x1fff
         
     def __str__(self):
         com_str = ("""COM:
@@ -69,7 +64,7 @@ class COM(object):
         return com_str
 
 ## Beacon
-# The beacon class takes a hex string of bytes as input, and parses it to generate
+# The beacon class takes a string of bytes as input, and parses it to generate
 # a representation of the beacon format used by AASUAT4
 # The beacon format is as follows:
 #  [ 1 byte | 19 bytes  | 12 bytes | 7 bytes  | 6 bytes  | 20 bytes  | 20 bytes  ]
@@ -82,16 +77,16 @@ class COM(object):
 class Beacon(object):
     
     def __init__(self, raw_data):
-        if len(raw_data) != BEACON_LENGTH*2:
+        if len(raw_data) != BEACON_LENGTH:
             raise InputException(len(raw_data), BEACON_LENGTH)
 
         self.subsystems = {}
         
-        valid = int(raw_data[0:2], 16)
+        valid = ord(raw_data[0])
 
         #<subsystem>_LENGTH is given in bytes, two chars from the hex string is needed per byte
-        eps_raw = raw_data[2:2+EPS_LENGTH*2]
-        com_raw = raw_data[2+EPS_LENGTH*2:2+EPS_LENGTH*2+COM_LENGTH*2]
+        eps_raw = raw_data[1 : 1 + EPS_LENGTH]
+        com_raw = raw_data[1 + EPS_LENGTH : 1 + EPS_LENGTH + COM_LENGTH]
         #adcs1_raw = raw_data[32:39]
         #adcs2_raw = raw_data[39:35]
         #ais1_raw = raw_data[35:55]
