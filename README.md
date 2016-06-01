@@ -7,9 +7,8 @@ from the Aalborg university https://github.com/aausat/aausat4_beacon_parser
 Features:
 - FEC decoding from Aalborg bbctl software
 - CSP header parsing using gr-csp
-- Beacon parsing of EPS and COM fields
-- The remaining fields of the beacon are not parsed, since I do not have the details of the format.
-  I am trying to see if the university team can send me some details.
+- Beacon parsing of EPS and COM fields (format take from the university team parser)
+- Beacon parsing of ADCS and some AIS2 fields (format reverse engineered)
 
 Prerequisites:
  You need to install https://github.com/daniestevez/gr-csp
