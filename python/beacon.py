@@ -5,6 +5,11 @@ BEACON_LENGTH = 84
 EPS_LENGTH = 20
 COM_LENGTH = 10
 
+# reverse engineered
+ADCS1_LENGTH = 7
+ADCS2_LENGTH = 6
+AIS_LENGTH = 20
+
 class InputException(Exception):
     def __init__(self, got, expected):
         msg = "Unexpected length: got {0}, expected {1}".format(got, expected) 
@@ -63,12 +68,54 @@ class COM(object):
 
         return com_str
 
+# Reverse engineered classes
+class ADCS1(object):
+    def __init__(self, adcs1_data):
+        data = struct.unpack(">hhhB", adcs1_data)
+        self.bdot = tuple(data[0:3])
+        self.state = data[3]
+
+    def __str__(self):
+        adcs1_str = ("""ADCS1:
+        State:\t{}
+        Bdot:\t{}""".format(self.state, self.bdot))
+
+        return adcs1_str
+
+class ADCS2(object):
+    def __init__(self, adcs2_data):
+        self.gyro = tuple(struct.unpack(">hhh", adcs2_data))
+
+    def __str__(self):
+        adcs2_str = ("""ADCS2:
+        Gyro:\t{}""".format(self.gyro))
+
+        return adcs2_str
+
+class AIS(object):
+    def __init__(self, ais_data):
+        # there are some fields which apparently are 0 all the time
+        # this fields can't be identified by reverse engineering
+        self.boot_count, _, _, self.unique_mssi, _ = struct.unpack(">HhhH12s", ais_data)
+
+    def __str__(self):
+        ais_str = ("""AIS:
+        Boot count:\t{}
+        Unique MSSI:\t{}""".format(self.boot_count, self.unique_mssi))
+
+        return ais_str
+
 ## Beacon
 # The beacon class takes a string of bytes as input, and parses it to generate
 # a representation of the beacon format used by AASUAT4
 # The beacon format is as follows:
+
+
 #  [ 1 byte | 19 bytes  | 12 bytes | 7 bytes  | 6 bytes  | 20 bytes  | 20 bytes  ]
 #  [ Valid  |    EPS    |    COM   |   ADCS1  |  ADCS2   |   AIS1    |   AIS2    ]
+# This is not correct EPS is 20 bytes and COM is 10 bytes
+# The remaining fields seem to have the correct length
+
 #
 # For each subsystem, which are valid, are the corresponding data bytes passed to another
 # class which parses the information.
@@ -81,24 +128,33 @@ class Beacon(object):
             raise InputException(len(raw_data), BEACON_LENGTH)
 
         self.subsystems = {}
+
+        valid, eps_raw, com_raw, adcs1_raw, adcs2_raw, ais1_raw, ais2_raw = \
+          struct.unpack(("B"+"{}s"*6).format(EPS_LENGTH, COM_LENGTH, ADCS1_LENGTH, ADCS2_LENGTH, AIS_LENGTH, AIS_LENGTH), raw_data)
+
+        # reverse engineered valid bits
+        # EPS and COM are known from university team code
+        # valid byte is usually 0x27
+        # in DK3WN's blog we see that EPS, COM, AIS2 and ADCS1 are valid
+        eps_valid = valid & (1 << 0)
+        com_valid = valid & (1 << 1)
+        adcs1_valid = valid & (1 << 2)
+        adcs2_valid = valid & (1 << 3)
+        ais1_valid = valid & (1 << 4)
+        ais2_valid = valid & (1 << 5)
         
-        valid = ord(raw_data[0])
-
-        #<subsystem>_LENGTH is given in bytes, two chars from the hex string is needed per byte
-        eps_raw = raw_data[1 : 1 + EPS_LENGTH]
-        com_raw = raw_data[1 + EPS_LENGTH : 1 + EPS_LENGTH + COM_LENGTH]
-        #adcs1_raw = raw_data[32:39]
-        #adcs2_raw = raw_data[39:35]
-        #ais1_raw = raw_data[35:55]
-        #ais2_raw = raw_data[55:75]
-
-        # Bit 0 indicates the EPS is on
-        if valid & (1 << 0):
+        if eps_valid:
             self.subsystems['EPS'] = EPS(eps_raw)
-            
-        # Bit 1 indicates the COM is on            
-        if valid & (1 << 1):
+        if com_valid:
             self.subsystems['COM'] = COM(com_raw)
+        if adcs1_valid:
+            self.subsystems['ADCS1'] = ADCS1(adcs1_raw)
+        if adcs2_valid:
+            self.subsystems['ADCS2'] = ADCS2(adcs2_raw)
+        if ais1_valid:
+            self.subsystems['AIS1'] = AIS(ais1_raw)
+        if ais2_valid:
+            self.subsystems['AIS2'] = AIS(ais2_raw)
         
     def __str__(self):
         beacon_str = ""
