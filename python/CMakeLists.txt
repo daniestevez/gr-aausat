@@ -33,7 +33,8 @@ GR_PYTHON_INSTALL(
     __init__.py
     beacon.py
     fec.py
-    aausat_parser.py DESTINATION ${GR_PYTHON_DIR}/aausat
+    aausat4_fec.py
+    aausat4_beacon_parser.py DESTINATION ${GR_PYTHON_DIR}/aausat
 )
 
 ########################################################################

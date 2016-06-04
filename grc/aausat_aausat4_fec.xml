@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<block>
+  <name>AAUSAT-4 FEC decoder</name>
+  <key>aausat_aausat4_fec</key>
+  <category>aausat</category>
+  <import>import aausat</import>
+  <make>aausat.aausat4_fec($verbose)</make>
+  <param>
+    <name>Verbose</name>
+    <key>verbose</key>
+    <type>bool</type>
+     <option>
+       <name>Yes</name>
+       <key>True</key>
+     </option>
+     <option>
+       <name>No</name>
+       <key>False</key>
+     </option>
+  </param>
+
+  <sink>
+    <name>in</name>
+    <type>message</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>message</type>
+    <optional>1</optional>
+  </source>
+</block>

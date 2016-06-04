@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<block>
+  <name>AAUSAT-4 Beacon Parser</name>
+  <key>aausat_aausat4_beacon_parser</key>
+  <category>aausat</category>
+  <import>import aausat</import>
+  <make>aausat.aausat4_beacon_parser()</make>
+
+  <sink>
+    <name>in</name>
+    <type>message</type>
+  </sink>
+
+</block>

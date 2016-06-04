@@ -11,7 +11,7 @@ Features:
 - Beacon parsing of ADCS and some AIS2 fields (format reverse engineered)
 
 Prerequisites:
- You need to install https://github.com/daniestevez/gr-csp
+ You need to install https://github.com/daniestevez/gr-csp and https://github.com/daniestevez/gr-synctags
 
 Installation:
  mkdir build
