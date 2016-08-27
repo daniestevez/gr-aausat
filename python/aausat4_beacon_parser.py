@@ -50,6 +50,9 @@ class aausat4_beacon_parser(gr.basic_block):
             return
         packet = str(bytearray(pmt.u8vector_elements(msg)))
 
-        print(str(beacon.Beacon(packet[4:])))
+        try:
+            print(str(beacon.Beacon(packet[4:])))
+        except ValueError as e:
+            print e
 
 

@@ -10,11 +10,6 @@ ADCS1_LENGTH = 7
 ADCS2_LENGTH = 6
 AIS_LENGTH = 20
 
-class InputException(Exception):
-    def __init__(self, got, expected):
-        msg = "Unexpected length: got {0}, expected {1}".format(got, expected) 
-        super(Exception, self).__init__(msg)
-        
 class EPS(object):
     def __init__(self, eps_data):
         if len(eps_data) != EPS_LENGTH:
@@ -125,7 +120,7 @@ class Beacon(object):
     
     def __init__(self, raw_data):
         if len(raw_data) != BEACON_LENGTH:
-            raise InputException(len(raw_data), BEACON_LENGTH)
+            raise ValueError("Malformed beacon (incorrect length)")
 
         self.subsystems = {}
 
