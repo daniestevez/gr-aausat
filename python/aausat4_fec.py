@@ -60,13 +60,13 @@ class aausat4_fec(gr.basic_block):
                 print "Trying to decode as long packet: 250 FEC bytes, 92 data bytes"
             (data, bit_corr, byte_corr) = self.ec.decode(packet[1:])
         except Exception as ex:
-            print(ex)
+            if self.verbose: print(ex)
             try:
                 if self.verbose:
                     print "Trying to decode as short packet: 128 FEC bytes, 31 data bytes"
                 (data, bit_corr, byte_corr) = self.ec.decode(packet[1:1 + 128])
             except Exception as ex:
-                print(ex)
+                if self.verbose: print(ex)
 
         if data:
             if self.verbose:
@@ -76,6 +76,4 @@ class aausat4_fec(gr.basic_block):
             self.message_port_pub(pmt.intern('out'),
                                   pmt.cons(pmt.PMT_NIL,
                                            pmt.init_u8vector(len(data), bytearray(data))))
-
-
 
